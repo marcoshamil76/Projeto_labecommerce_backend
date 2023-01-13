@@ -22,7 +22,7 @@ import { addUsers2, getProductById, products, purchases,users } from "./database
 import { addUsers } from "./database"
 import express, {Request, Response} from 'express'
 import cors from 'cors'
-import { TProduct } from "./types"
+import { TProduct, TPurchase, TUser} from "./types"
 
 // console.log(`Lista de usuários cadastrados`)
 // console.table(users)
@@ -63,11 +63,30 @@ app.get('/products/search', (req: Request, res: Response)=>{
 })
 
 app.get('/products', (req: Request, res: Response)=>{
-    res.status(200).send(products)
+    try {
+        
+        res.status(200).send(products)
+    } catch (error) {
+        console.log(error)
+        if(res.statusCode === 200){
+            res.status(500)
+        }
+        // res.send(error.message)
+        
+    }
 })
 
 app.get('/users', (req: Request, res: Response)=>{
-    res.status(200).send(users)
+    try {
+        res.status(200).send(users)
+            } catch (error:any) {
+                console.log(error)
+                if(res.statusCode === 200){
+                    res.status(500)
+                }
+                res.send(error.message)
+                
+            }
 })
 
 app.get('/users/search', (req: Request, res: Response)=>{
@@ -80,8 +99,8 @@ app.get('/users/search', (req: Request, res: Response)=>{
 
 // adicionar um product
 app.post('/products',(req:Request, res: Response)=>{
-  
-    const {id, name, price, category} = req.body as TProduct
+    try {
+        const {id, name, price, category} = req.body as TProduct
     
     const newProduct = {
         id,
@@ -90,7 +109,102 @@ app.post('/products',(req:Request, res: Response)=>{
         category
             }
     products.push(newProduct)
+    const checkId = products.find((product)=>{
+        return product.id === id
+    })
+        if(checkId ){
+            res.status(400)
+            console.log(" AQUI",checkId)
+            throw new Error("Id já existente")
+        }else if(req.body.id !=="Number"){
+            res.status(400)
+            throw new Error("Id precisa ser um número")
+
+        }
+    
     res.status(201).send("Product successfully added!")
+        
+    } catch (error: any) {
+        console.log(error)
+                if(res.statusCode === 200){
+                    res.status(500)
+                }
+                res.send(error.message)     
+    }
+  
+    
+})
+
+// Adição de usuário
+app.post('/users',(req:Request, res: Response)=>{
+    try {
+        const {id, email, password} = req.body as TUser
+    
+    const newUser = {
+        id,
+        email,
+        password
+        }
+    
+    const checkId = users.find((user)=> user.id === req.body.id)
+    
+       if(checkId){
+        throw new Error("Id já em uso")
+       }
+       const checkEmail= users.find((user)=> user.email === email)
+    
+       if(checkEmail){
+        
+        throw new Error("Este email já foi cadastrado")
+       }
+
+       users.push(newUser)
+       console.log("AAAAAAAAAAAQQQQUUUUUIIII",checkEmail)
+    res.status(201).send("User successfully added!")
+        
+    } catch (error) {
+        console.log(error)
+                if(res.statusCode === 200){
+                    res.status(500)
+                }
+                res.send(error.message)     
+    }
+  
+    
+})
+
+// Criação de Purchase
+
+app.post('/purchase', (req:Request, res:Response)=>{
+    try {
+        const {userId, productId, quantity,totalPrice}= req.body as TPurchase
+
+        const newPurchase = {
+            userId,
+            productId,
+            quantity, totalPrice
+        }
+
+        const checkUserId = users.find((user)=> user.id === req.body.userId)
+        const checkProductId = products.find((product)=> product.id === req.body.productId)
+
+        if(!checkUserId){
+            throw new Error("Este Id não consta no cadastro")
+        }
+        if(!checkProductId){
+            throw new Error("Este Id de produto não consta")
+        }
+
+        purchases.push(newPurchase)
+        res.status(201).send("Purchase cadastrada com sucesso")
+    } catch (error) {
+        console.log(error)
+                if(res.statusCode === 200){
+                    res.status(500)
+                }
+                res.send(error.message)  
+        
+    }
 })
 
 // Aprofundamento Express Exercicios
