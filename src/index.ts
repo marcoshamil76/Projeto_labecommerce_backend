@@ -159,7 +159,6 @@ app.post('/users',(req:Request, res: Response)=>{
        }
 
        users.push(newUser)
-       console.log("AAAAAAAAAAAQQQQUUUUUIIII",checkEmail)
     res.status(201).send("User successfully added!")
         
     } catch (error) {
@@ -169,7 +168,7 @@ app.post('/users',(req:Request, res: Response)=>{
                 }
                 res.send(error.message)     
     }
-  
+
     
 })
 
@@ -209,8 +208,10 @@ app.post('/purchase', (req:Request, res:Response)=>{
 
 // Aprofundamento Express Exercicios
 
+// Get Product by user id
 app.get("/products/:id",(req: Request, res: Response)=>{
-    const id = req.params.id
+    try {
+        const id = req.params.id
     const productFind = products.find((product)=>{
         return product.id === id
     })
@@ -219,6 +220,14 @@ app.get("/products/:id",(req: Request, res: Response)=>{
     }else{
         res.status(404).send("Produto não encontrado")
     }
+    } catch (error) {
+        console.log(error)
+                if(res.statusCode === 200){
+                    res.status(500)
+                }
+                res.send(error.message)
+    }
+    
 })
 
 app.get("/purchases/:id",(req: Request, res: Response)=>{
@@ -233,9 +242,10 @@ app.get("/purchases/:id",(req: Request, res: Response)=>{
     }
 })
 
-
+// Delete user by id
 app.delete("/users/:id",(req: Request, res: Response)=>{
-    const id = req.params.id
+    try {
+        const id = req.params.id
     
     const userIndex = users.findIndex((user)=>{
         return user.id === id
@@ -246,10 +256,20 @@ app.delete("/users/:id",(req: Request, res: Response)=>{
     }else{
         res.status(404).send("User não encontrado")
     }
-})
+    } catch (error) {
+        console.log(error)
+        if (res.statusCode === 200){
+            res.status(500)
 
+        }
+        res.send(error.message)
+    }
+    
+})
+// Delete product by id
 app.delete("/products/:id",(req: Request, res: Response)=>{
-    const id = req.params.id
+    try {
+        const id = req.params.id
     
     const productIndex = products.findIndex((product)=>{
         return product.id === id
@@ -260,10 +280,20 @@ app.delete("/products/:id",(req: Request, res: Response)=>{
     }else{
         res.status(404).send("Product não encontrado")
     }
+    } catch (error) {
+        console.log(error)
+        if(res.statusCode === 200){
+            res.status(500)
+        }
+        res.send(error.message)
+        
+    }
+    
 })
-
+// Edit user by id
 app.put("/users/:id",(req: Request, res: Response)=>{
-    const id = req.params.id
+    try {
+        const id = req.params.id
 
     const newId = req.body.id as string | undefined
     const newEmail = req.body.email as string | undefined
@@ -282,11 +312,21 @@ app.put("/users/:id",(req: Request, res: Response)=>{
     }else{
         res.status(404).send("User não encontrado")
     }
+    } catch (error) {
+        console.log(error)
+        if(res.statusCode === 200){
+            res.status(500)
+        }
+        res.send(error.message)
+        
+    }
+    
     })
 
-
+    //Edit user by id
     app.put("/products/:id",(req: Request, res: Response)=>{
-        const id = req.params.id
+        try {
+            const id = req.params.id
     
         const newId = req.body.id as string | undefined
         const newName = req.body.name as string | undefined
@@ -299,12 +339,47 @@ app.put("/users/:id",(req: Request, res: Response)=>{
         })
     
         if (productEdited){
-            productEdited.id = newId || productEdited.id    
-            productEdited.name = newName || productEdited.name
+            if(newId){
+                if(newId.length>=2){
+                   productEdited.id =newId
+                   
+                }else{
+                    console.log(newId)
+                    throw new Error("Id precisa ter ao menos dois caracteres")
+                }
+            }else{
+                productEdited.id = productEdited.id
+            }
+            if(newName){
+                if(newName.length>=3){
+                    productEdited.name = newName
+                }else{
+                    throw new Error("Nome precisa ter ao menos três caracteres")
+                }
+            }else{
+                productEdited.name = productEdited.name
+            }
+            if(newCategory){
+                if(newCategory.length>=3){
+                    productEdited.category = newCategory
+                }else{
+                    throw new Error("Categoria precisa ter ao menos três caracteres")
+                }
+            }else{
+                productEdited.category = productEdited.category
+            }
             productEdited.price = newPrice || productEdited.price
-            productEdited.category = newCategory || productEdited.category
             res.status(200).send("Product atualizado com sucesso")
         }else{
             res.status(404).send("Product não encontrado")
         }
+        } catch (error) {
+            console.log(error)
+            if(res.statusCode ===200){
+                res.status(500)
+            }
+            res.send(error.message)
+            
+        }
+        
         })
