@@ -76,6 +76,20 @@ app.get('/products', (req: Request, res: Response)=>{
     }
 })
 
+app.get('/purchases', (req: Request, res: Response)=>{
+    try {
+        
+        res.status(200).send(purchases)
+    } catch (error) {
+        console.log(error)
+        if(res.statusCode === 200){
+            res.status(500)
+        }
+        // res.send(error.message)
+        
+    }
+})
+
 app.get('/users', (req: Request, res: Response)=>{
     try {
         res.status(200).send(users)
@@ -174,6 +188,12 @@ app.post('/users',(req:Request, res: Response)=>{
 
 // Criação de Purchase
 
+// resolução Mikio
+// const totalPrice = (checkProductId[0].price) * (newPurchase.quantity)
+//                 console.log(totalPrice)
+//                 const checkTotalPrice = (totalPrice === newPurchase.totalPrice)
+//                 console.log(checkTotalPrice)
+
 app.post('/purchase', (req:Request, res:Response)=>{
     try {
         const {userId, productId, quantity,totalPrice}= req.body as TPurchase
@@ -181,8 +201,10 @@ app.post('/purchase', (req:Request, res:Response)=>{
         const newPurchase = {
             userId,
             productId,
-            quantity, totalPrice
+            quantity, 
+            totalPrice
         }
+        console.log(newPurchase)
 
         const checkUserId = users.find((user)=> user.id === req.body.userId)
         const checkProductId = products.find((product)=> product.id === req.body.productId)
@@ -193,7 +215,10 @@ app.post('/purchase', (req:Request, res:Response)=>{
         if(!checkProductId){
             throw new Error("Este Id de produto não consta")
         }
-
+        if ((checkProductId.price * quantity) !== Number(totalPrice)){
+            console.log(totalPrice, checkProductId.price, newPurchase.quantity)
+            throw new Error("Valor Total incorreto")
+        }
         purchases.push(newPurchase)
         res.status(201).send("Purchase cadastrada com sucesso")
     } catch (error) {
@@ -211,7 +236,7 @@ app.post('/purchase', (req:Request, res:Response)=>{
 // Get Product by user id
 app.get("/products/:id",(req: Request, res: Response)=>{
     try {
-        const id = req.params.id
+     const id = req.params.id
     const productFind = products.find((product)=>{
         return product.id === id
     })
