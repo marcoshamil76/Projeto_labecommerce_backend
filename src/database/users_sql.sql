@@ -1,6 +1,6 @@
 -- Active: 1673887085230@@127.0.0.1@3306
 CREATE TABLE users (
-    id TEXT PRIMARY KEY UNIQUE NOT NULL, 
+    id INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT, 
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
@@ -9,12 +9,14 @@ CREATE TABLE users (
 
 DROP TABLE users;
 
+-- DELETE * FROM users WHERE id = 3;
+
 SELECT * FROM users;
 
-INSERT INTO users (id,name, email, password)
+INSERT INTO users (name, email, password)
 VALUES 
-(1,"Elida Paula","epsantos@mhs.com","epsantos1978"),
-(2,"Marcos Hamilton","mhsantos@mhs.com","mhsantos1976"),
-(3,"Maria Flavia","mfsantos@mhs.com","mfsantos2004"),
-(4,"Miguel Henrique","mmsantos@mhs.com","mmsantos2009"),
-(5,"Bento Hamilton","bhsantos@mhs.com","bhsantos2009");
+("Elida Paula","epsantos@mhs.com","epsantos1978"),
+("Marcos Hamilton","mhsantos@mhs.com","mhsantos1976"),
+("Maria Flavia","mfsantos@mhs.com","mfsantos2004"),
+("Miguel Henrique","mmsantos@mhs.com","mmsantos2009"),
+("Bento Hamilton","bhsantos@mhs.com","bhsantos2009");

@@ -1,8 +1,10 @@
 -- Active: 1673887085230@@127.0.0.1@3306
 CREATE TABLE users (
     id TEXT PRIMARY KEY UNIQUE NOT NULL, 
+    name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    created_at TEXT
 );
 
 CREATE TABLE products ( 
