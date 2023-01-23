@@ -1,8 +1,10 @@
 -- Active: 1673887085230@@127.0.0.1@3306
 CREATE TABLE users (
     id TEXT PRIMARY KEY UNIQUE NOT NULL, 
+    name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    created_at TEXT
 );
 
 CREATE TABLE products ( 
@@ -101,7 +103,7 @@ VALUES
         (6,120.50,"0",4),
         (7,999.99,"0",5);
 
-INSERT INTO purchases (id, total_price,buyer_id)
+INSERT INTO purchases (id, total_price,paid,buyer_id)
 VALUES 
         (8,99.99,"0",1),
         (9,299.99,"0",2);
@@ -119,6 +121,50 @@ INNER JOIN users
 ON  purchases.buyer_id = users.id;
 
 SELECT purchases.*, purchases.total_price as Total FROM users INNER JOIN purchases on buyer_id = users.id;
+
+-- Relations SQL II
+
+CREATE TABLE purchases_products (
+    purchase_id TEXT NOT NULL,
+    product_id TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    Foreign Key (purchase_id) REFERENCES purchases(id),
+    Foreign Key (product_id) REFERENCES products(id)
+
+);
+DROP TABLE purchases_products;
+
+SELECT * FROM users;
+
+INSERT INTO purchases_products (purchase_id, product_id,quantity)
+VALUES
+    (3,2,3),
+    (3,5,10),
+    (5,4,2),
+    (6,5,2),
+    (6,7,2);
+    
+   
+SELECT
+    purchases_products.purchase_id AS CodigoCompra,
+    products.name AS Produto,
+    purchases_products.quantity AS "Total Comprado",
+    users.email AS "Email comprador"
+    FROM products
+    INNER JOIN purchases_products
+    ON products.id = purchases_products.product_id
+    INNER JOIN purchases
+    ON purchases.id = purchases_products.purchase_id
+    INNER JOIN users
+    ON purchases.buyer_id = users.id
+    ORDER BY purchases_products.purchase_id ASC
+    ;
+    
+SELECT * FROM purchases_products
+INNER JOIN purchases
+ON purchases_products.purchase_id = purchases.id
+INNER JOIN products
+ON purchases_products.product_id = products.id;
 
 
 

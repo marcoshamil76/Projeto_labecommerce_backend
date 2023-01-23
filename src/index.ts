@@ -1,49 +1,18 @@
-// import { frota } from "./frota"
-// type Carro = {
-//   marca:string,
-//    modelo:string,
-//    ano:number}
-
-// function buscarCarrosPorMarca(frota:Carro[], marca:string):Carro[] {
-//   if (marca === undefined) {
-//     return frota
-//   }
-
-//   return frota.filter(
-//     (carro) => {
-//       return carro.marca === marca
-//     }
-//   )
-// }
-
-// console.log(buscarCarrosPorMarca(frota,"Toyota"))
-
 import { addUsers2, getProductById, products, purchases,users } from "./database"
 import { addUsers } from "./database"
 import express, {Request, Response} from 'express'
 import cors from 'cors'
 import { TProduct, TPurchase, TUser} from "./types"
 
-// console.log(`Lista de usuários cadastrados`)
-// console.table(users)
-// console.log(`Lista de produtos`)
-// console.table(products)
-// console.log(`Lista de Compras`)
-// console.table(purchases)
+// https://documenter.getpostman.com/view/24460706/2s8ZDYZ2hE
+// link do documento
 
-// console.log(users)
-// console.log(addUsers("04", "mhs@mhs.com","1976"))
-// console.table(users)
-// console.log(getProductById("p03"))
-// console.log(addUsers2("05","bwayne@mhs.com","1978"))
 
 // Deus é +!
 const app = express()
 
 app.use(express.json())
 app.use(cors())
-
-
 
 
 app.listen(3003, ()=>{
@@ -71,8 +40,6 @@ app.get('/products', (req: Request, res: Response)=>{
         if(res.statusCode === 200){
             res.status(500)
         }
-        // res.send(error.message)
-        
     }
 })
 
@@ -85,8 +52,6 @@ app.get('/purchases', (req: Request, res: Response)=>{
         if(res.statusCode === 200){
             res.status(500)
         }
-        // res.send(error.message)
-        
     }
 })
 
@@ -122,21 +87,24 @@ app.post('/products',(req:Request, res: Response)=>{
         price,
         category
             }
-    products.push(newProduct)
-    const checkId = products.find((product)=>{
-        return product.id === id
-    })
-        if(checkId ){
-            res.status(400)
-            console.log(" AQUI",checkId)
-            throw new Error("Id já existente")
-        }else if(req.body.id !=="Number"){
-            res.status(400)
-            throw new Error("Id precisa ser um número")
-
-        }
-    
-    res.status(201).send("Product successfully added!")
+            const checkId = products.find((product)=>{
+                return product.id === id
+            })
+            if(checkId ){
+                res.status(400)
+                console.log(" AQUI",checkId)
+                throw new Error("Id já existente")
+            // }else if(req.body.id !=="Number"){
+            //     res.status(400)
+            //     console.log(req.body.id)
+            //     throw new Error("Id precisa ser um número")
+                
+            }else{
+                products.push(newProduct)
+                res.status(201).send("Product successfully added!")  
+            }
+            
+        
         
     } catch (error: any) {
         console.log(error)
@@ -145,8 +113,6 @@ app.post('/products',(req:Request, res: Response)=>{
                 }
                 res.send(error.message)     
     }
-  
-    
 })
 
 // Adição de usuário
@@ -182,17 +148,9 @@ app.post('/users',(req:Request, res: Response)=>{
                 }
                 res.send(error.message)     
     }
-
-    
 })
 
-// Criação de Purchase
 
-// resolução Mikio
-// const totalPrice = (checkProductId[0].price) * (newPurchase.quantity)
-//                 console.log(totalPrice)
-//                 const checkTotalPrice = (totalPrice === newPurchase.totalPrice)
-//                 console.log(checkTotalPrice)
 
 app.post('/purchase', (req:Request, res:Response)=>{
     try {
