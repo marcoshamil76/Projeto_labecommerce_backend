@@ -3,6 +3,7 @@ import { addUsers } from "./database"
 import express, {Request, Response} from 'express'
 import cors from 'cors'
 import { TProduct, TPurchase, TUser} from "./types"
+import { db } from "./database/knex"
 
 // https://documenter.getpostman.com/view/24460706/2s8ZDYZ2hE
 // link do documento
@@ -19,29 +20,76 @@ app.listen(3003, ()=>{
     console.log("Servidor rodando na porta 3003")
 })
 
-app.get('/products', (req: Request, res: Response)=>{
-    res.status(200).send(products)
-})
+// app.get('/products', (req: Request, res: Response)=>{
+//     res.status(200).send(products)
+// })
 
-app.get('/products/search', (req: Request, res: Response)=>{
-    const q = req.query.q as string
-    const result = products.filter((product)=>{
-        return product.name.toLocaleLowerCase().includes(q.toLowerCase())
-    })
-    res.status(200).send(result)
-})
-
-app.get('/products', (req: Request, res: Response)=>{
+//************************************ */ Refatorado para uso do Knex
+app.get('/products', async (req:Request, res: Response)=>{
     try {
-        
-        res.status(200).send(products)
+        const result = await db.raw(`SELECT * FROM products`)
+        res.status(200).send(result)
     } catch (error) {
         console.log(error)
-        if(res.statusCode === 200){
+
+        if (req.statusCode === 200) {
             res.status(500)
+        }
+
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
+        }  
+    }
+})
+
+
+// app.get('/products/search', (req: Request, res: Response)=>{
+//     const q = req.query.q as string
+//     const result = products.filter((product)=>{
+//         return product.name.toLocaleLowerCase().includes(q.toLowerCase())
+//     })
+//     res.status(200).send(result)
+// })
+
+//*****************************************/ Refatorado para uso do Knex
+app.get('/products/search', async (req: Request, res: Response)=>{
+    try {
+        const q = req.query.q as string
+        // const id = req.params.id
+
+        const productFind = await db.raw(
+            `SELECT * FROM products
+            WHERE name LIKE "%${q}%"`
+            
+        )
+        
+        if(productFind){
+            res.status(200).send(productFind)
+        }else{
+            res.status(400)
+            throw new Error("Produto não localizado")
+            console.log(q)
+        }
+        
+
+    } catch (error) {
+        console.log(error)
+
+        if (req.statusCode === 200) {
+            res.status(500)
+        }
+
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
         }
     }
 })
+
+
 
 app.get('/purchases', (req: Request, res: Response)=>{
     try {
@@ -55,17 +103,41 @@ app.get('/purchases', (req: Request, res: Response)=>{
     }
 })
 
-app.get('/users', (req: Request, res: Response)=>{
-    try {
-        res.status(200).send(users)
-            } catch (error:any) {
-                console.log(error)
-                if(res.statusCode === 200){
-                    res.status(500)
-                }
-                res.send(error.message)
+
+
+
+// app.get('/users', (req: Request, res: Response)=>{
+//     try {
+//         res.status(200).send(users)
+//             } catch (error:any) {
+//                 console.log(error)
+//                 if(res.statusCode === 200){
+//                     res.status(500)
+//                 }
+//                 res.send(error.message)
                 
-            }
+//             }
+// })
+
+
+//****************************************** */ Refatorado para uso do knex
+app.get ('/users', async (req:Request,res: Response)=>{
+    try {
+        const result = await db.raw(`SELECT * FROM users`)
+        res.status(200).send(result)
+    } catch (error) {
+        console.log(error)
+
+        if (req.statusCode === 200) {
+            res.status(500)
+        }
+
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
+        }  
+    }
 })
 
 app.get('/users/search', (req: Request, res: Response)=>{
@@ -116,29 +188,78 @@ app.post('/products',(req:Request, res: Response)=>{
 })
 
 // Adição de usuário
-app.post('/users',(req:Request, res: Response)=>{
+// app.post('/users',(req:Request, res: Response)=>{
+//     try {
+//         const {id, email, password} = req.body as TUser
+    
+//     const newUser = {
+//         id,
+//         email,
+//         password
+//         }
+    
+//     const checkId = users.find((user)=> user.id === req.body.id)
+    
+//        if(checkId){
+//         throw new Error("Id já em uso")
+//        }
+//        const checkEmail= users.find((user)=> user.email === email)
+    
+//        if(checkEmail){
+        
+//         throw new Error("Este email já foi cadastrado")
+//        }
+
+//        users.push(newUser)
+//     res.status(201).send("User successfully added!")
+        
+//     } catch (error) {
+//         console.log(error)
+//                 if(res.statusCode === 200){
+//                     res.status(500)
+//                 }
+//                 res.send(error.message)     
+//     }
+// })
+
+
+//*********************************************** */ Refatorado para uso do knex ADIÇÃO USUÁRIO
+
+app.post('/users', async (req:Request, res: Response)=>{
     try {
-        const {id, email, password} = req.body as TUser
+        const {name, email, password} = req.body 
     
     const newUser = {
-        id,
+        name,
         email,
         password
         }
-    
-    const checkId = users.find((user)=> user.id === req.body.id)
-    
-       if(checkId){
-        throw new Error("Id já em uso")
-       }
-       const checkEmail= users.find((user)=> user.email === email)
-    
-       if(checkEmail){
-        
-        throw new Error("Este email já foi cadastrado")
-       }
 
-       users.push(newUser)
+        // const checkId = await db.raw(
+        //     `SELECT * FROM products
+        //     WHERE id = "${id}"`
+            
+        // )
+       
+    
+    // const checkId = users.find((user)=> user.id === req.body.id)
+    
+    //    if(checkId){
+    //     throw new Error("Id já em uso")
+    // //    }
+    //    const checkEmail= users.find((user)=> user.email === email)
+    
+    //    if(checkEmail){
+        
+    //     throw new Error("Este email já foi cadastrado")
+    //    }
+        
+      await db.raw  (`
+       INSERT INTO users (name, email, password)
+       VALUES 
+       ("${newUser.name}","${newUser.email}","${newUser.password}");
+       `)
+    //    users.push(newUser)
     res.status(201).send("User successfully added!")
         
     } catch (error) {
@@ -149,8 +270,6 @@ app.post('/users',(req:Request, res: Response)=>{
                 res.send(error.message)     
     }
 })
-
-
 
 app.post('/purchase', (req:Request, res:Response)=>{
     try {
@@ -192,16 +311,46 @@ app.post('/purchase', (req:Request, res:Response)=>{
 // Aprofundamento Express Exercicios
 
 // Get Product by user id
-app.get("/products/:id",(req: Request, res: Response)=>{
+// app.get("/products/:id",(req: Request, res: Response)=>{
+//     try {
+//      const id = req.params.id
+//     const productFind = products.find((product)=>{
+//         return product.id === id
+//     })
+//     if (productFind){
+//         res.status(200).send(productFind)
+//     }else{
+//         res.status(404).send("Produto não encontrado")
+//     }
+//     } catch (error) {
+//         console.log(error)
+//                 if(res.statusCode === 200){
+//                     res.status(500)
+//                 }
+//                 res.send(error.message)
+//     }
+    
+// })
+
+// *********************************************Refatorado par uso do knex
+
+app.get("/products/:id", async (req: Request, res: Response)=>{
     try {
-     const id = req.params.id
-    const productFind = products.find((product)=>{
-        return product.id === id
-    })
+        const id = req.params.id
+
+        const [productFind] = await db.raw(
+            `SELECT * FROM products
+            WHERE id="${id}"`
+        )
+        // Esta parte abaixo foi substituída pela busca acima
+    // const productFind = products.find((product)=>{
+    //     return product.id === id
+    // })
     if (productFind){
         res.status(200).send(productFind)
     }else{
-        res.status(404).send("Produto não encontrado")
+        res.status(400)
+        throw new Error("Produto não encontrado!")
     }
     } catch (error) {
         console.log(error)
