@@ -1,6 +1,6 @@
 -- Active: 1673887085230@@127.0.0.1@3306
 CREATE TABLE purchases (
-id INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT,
+id TEXT PRIMARY KEY UNIQUE NOT NULL,
 buyer_id TEXT NOT NULL,
 total_price REAL UNIQUE NOT NULL,  
 created_at TEXT DEFAULT (DATETIME()) NOT NULL,
@@ -23,16 +23,16 @@ CREATE TABLE purchases_products (
 );
 SELECT * FROM purchases_products;
 
--- DROP TABLE purchases_products;
+DROP TABLE purchases_products;
 
-INSERT INTO purchases (buyer_id,total_price,paid)
+INSERT INTO purchases (id,buyer_id,total_price,paid)
 VALUES
-        (1,480,0),
-        (3,189,1),
-        (2,600,0),
-        (5,45,1),
-        (4,75,0),
-        (4,200,0);
+        (1,1,480,0),
+        (2,3,189,1),
+        (3,2,600,0),
+        (4,5,45,1),
+        (5,4,75,0),
+        (6,4,200,0);
 
 INSERT INTO purchases_products (purchase_id,product_id,quantity)
 VALUES 
