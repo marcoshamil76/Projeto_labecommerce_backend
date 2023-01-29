@@ -13,7 +13,7 @@ DELETE  FROM products;
 
 DROP TABLE products;
 
-INSERT INTO products (id,name,price,description,image_url)
+INSERT INTO products (n)
 VALUES
         ("P001","Capacete", 450,"Capacete branco","https://imgs.pontofrio.com.br/1543015405/1xg.jpg?imwidth=292"),
         ("P002","Oculos", 250,"Oculos espelhado","https://a-static.mlcdn.com.br/800x560/oculos-de-sol-ciclismo-masculino-feminino-espelhado-kit-2-esportivo/olistplus/opm27v5344rxfllv/bf290158f1afb1c3be7ed169d1322128.jpeg"),
