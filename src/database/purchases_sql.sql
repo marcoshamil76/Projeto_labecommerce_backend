@@ -2,16 +2,16 @@
 CREATE TABLE purchases (
 id TEXT PRIMARY KEY UNIQUE NOT NULL,
 buyer_id TEXT NOT NULL,
-total_price REAL UNIQUE NOT NULL,  
+total_price REAL NOT NULL,  
 created_at TEXT DEFAULT (DATETIME()) NOT NULL,
-paid INTEGER NOT NULL,
+paid INTEGER NOT NULL DEFAULT(0),
 Foreign Key (buyer_id) REFERENCES users(id)
 
 );
 
 SELECT * FROM purchases;
 
-DROP TABLE purchases;
+-- DROP TABLE purchases;
 
 CREATE TABLE purchases_products (
     purchase_id TEXT NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE purchases_products (
 );
 SELECT * FROM purchases_products;
 
-DROP TABLE purchases_products;
+-- DROP TABLE purchases_products;
 
 INSERT INTO purchases (id,buyer_id,total_price,paid)
 VALUES
